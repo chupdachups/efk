@@ -1,0 +1,66 @@
+<source> 
+  @type tail 
+  path Q:\big\sample\workspace-01\account\logs\Account_Back.log
+  pos_file Q:\big\sample\workspace-01\account\logs\Account_Back.pos
+  tag log.local.account
+  <parse> 
+    @type multiline_grok
+//	grok_pattern \[%{DATE_STRING:date_string} %{TIME:time_string}.%{INT:msec}\] INFO  --- \[%{DATA:tread_id}\} %{JAVACLASS}\[%{DATA:method_name}\] : service_name:%{DATA:service_name} host_name:%{DATA:host_name} ip:%{IP:ip_address} port:%{DATA:port} client_ip:%{IP:client_ip} 
+	grok_pattern %{TIMESTAMP_ISO8601:timestamp}\s+%{LOGLEVEL:severity}\s+\[%{DATA:service},%{DATA:trace},%{DATA:span},%{DATA:exportable}\]\s+%{DATA:pid}\s+---\s+\[%{DATA:thread}\]\s+%{DATA:class}\s+:\s+%{GREEDYDATA:rest}
+    custom_pattern_path Q:\big\sample\EFK\fluentd\custom_pattern.ptn
+  </parse> 
+</source>
+<source> 
+  @type tail 
+  path Q:\big\sample\workspace-01\product\logs\Product_Back.log
+  pos_file Q:\big\sample\workspace-01\product\logs\Product.pos
+  tag log.local.product
+  <parse> 
+    @type multiline_grok
+//	grok_pattern \[%{DATE_STRING:date_string} %{TIME:time_string}.%{INT:msec}\] INFO  --- \[%{DATA:tread_id}\} %{JAVACLASS}\[%{DATA:method_name}\] : service_name:%{DATA:service_name} host_name:%{DATA:host_name} ip:%{IP:ip_address} port:%{DATA:port} client_ip:%{IP:client_ip} 
+	grok_pattern %{TIMESTAMP_ISO8601:timestamp}\s+%{LOGLEVEL:severity}\s+\[%{DATA:service},%{DATA:trace},%{DATA:span},%{DATA:exportable}\]\s+%{DATA:pid}\s+---\s+\[%{DATA:thread}\]\s+%{DATA:class}\s+:\s+%{GREEDYDATA:rest}
+    custom_pattern_path Q:\big\sample\EFK\fluentd\custom_pattern.ptn
+  </parse> 
+</source>
+<source> 
+  @type tail 
+  path Q:\big\sample\workspace-01\reserve\logs\Reserve.log
+  pos_file Q:\big\sample\workspace-01\reserve\logs\Reserve.pos
+  tag log.local.reserve
+  <parse> 
+    @type multiline_grok
+//	grok_pattern \[%{DATE_STRING:date_string} %{TIME:time_string}.%{INT:msec}\] INFO  --- \[%{DATA:tread_id}\} %{JAVACLASS}\[%{DATA:method_name}\] : service_name:%{DATA:service_name} host_name:%{DATA:host_name} ip:%{IP:ip_address} port:%{DATA:port} client_ip:%{IP:client_ip} 
+	grok_pattern %{TIMESTAMP_ISO8601:timestamp}\s+%{LOGLEVEL:severity}\s+\[%{DATA:service},%{DATA:trace},%{DATA:span},%{DATA:exportable}\]\s+%{DATA:pid}\s+---\s+\[%{DATA:thread}\]\s+%{DATA:class}\s+:\s+%{GREEDYDATA:rest}
+    custom_pattern_path Q:\big\sample\EFK\fluentd\custom_pattern.ptn
+  </parse> 
+</source>
+
+<filter log.*.*>
+  @type geoip
+</filter>
+
+
+<match log.*.*>
+  @type secure_forward
+  shared_key password1!
+  secure no
+  self_hostname localhost.fluentd.col
+    <server>
+	  host localhost
+	  port 9999
+	</server>
+  buffer_type memory
+  buffer_chunk_limit 16m
+  buffer_queue_limit 128
+  flush_interval 30s
+  flush_at_shutdown false
+  retry_limit 17
+  retry_wait 1s
+  max_retry_wait 1m
+  disable_retry_limit true
+  num_threads 4
+</match>
+
+#<match test.nginx>
+#  @type stdout
+#</match>
